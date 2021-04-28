@@ -1,22 +1,22 @@
 import React from "react";
 import { Table, Spinner } from "react-bootstrap";
-import { FaTrashAlt, FaEdit } from "react-icons/fa";
+import { FaEdit } from "react-icons/fa";
 function DonationTable({ donationList }) {
   let order = 1;
 
   return (
     <div className="productTable mt-1">
-      {donationList.length == 0 ? (
+      {donationList.length === 0 ? (
         <Spinner animation="border" />
       ) : (
         <Table striped bordered hover responsive className="table-sm">
           <thead>
-            <th>NO</th>
-            <th>DATE</th>
-            <th>USER NAME</th>
-            <th>CASH</th>
-            <th>TOTAL ITEM</th>
-            <th>ACTION</th>
+            <th>លេខរៀង</th>
+            <th>កាលបរិច្ឆេទ</th>
+            <th>ឈ្មោះ</th>
+            <th>ចំនួនលុយ</th>
+            <th>ចំនួនទំនិញ់</th>
+            <th>ផ្សេងៗ</th>
           </thead>
           <tbody>
             {donationList &&

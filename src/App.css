@@ -1,38 +1,54 @@
-.App {
-  text-align: center;
+@font-face {
+  font-family: khmerOsSiemReap;
+  src: url("./fonts/KhmerOSsiemreap.ttf");
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+@font-face {
+  font-family: khmerOsMuolLight;
+  src: url("./fonts/KhmerOSmuollight.ttf");
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+@font-face {
+  font-family: tacteng;
+  src: url("./fonts/TACTENG.TTF");
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+span,
+input,
+li,
+th,
+td,
+button,
+div,
+label,
+title {
+  font-family: khmerOsSiemReap;
 }
 
-.App-link {
-  color: #61dafb;
+.HeaderFont {
+  font-family: khmerOsMuolLight;
+  font-size: 9pt !important;
+}
+a {
+  font-family: khmerOsMuolLight;
+  font-size: 12pt !important;
+}
+a:hover {
+  text-decoration: none;
+  color: rgb(16, 104, 104);
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.HeaderFont1 {
+  font-family: tacteng;
+  font-size: 9pt !important;
+}
+.HeaderStyle {
+  text-align: justify !important;
 }

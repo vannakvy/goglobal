@@ -1,0 +1,11 @@
+.sidebarList {
+  /* background-color: aquamarine; */
+}
+.sidebarList:hover {
+  margin-bottom: 2px;
+  transition: 0.5s;
+  background-color: rgb(241, 178, 76);
+}
+.sideBarActive {
+  background-color: rgb(246, 211, 154);
+}

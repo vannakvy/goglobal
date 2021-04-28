@@ -1,52 +1,49 @@
-import React from "react";
+import React, { useState } from "react";
+import db from "../config/db";
 import clsx from "clsx";
 import { makeStyles } from "@material-ui/core/styles";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import Drawer from "@material-ui/core/Drawer";
-import Box from "@material-ui/core/Box";
+import Box from "../components/Box";
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
 import List from "@material-ui/core/List";
 import Typography from "@material-ui/core/Typography";
 import Divider from "@material-ui/core/Divider";
 import IconButton from "@material-ui/core/IconButton";
-import Badge from "@material-ui/core/Badge";
 import Container from "@material-ui/core/Container";
-import Grid from "@material-ui/core/Grid";
-import Paper from "@material-ui/core/Paper";
-import Link from "@material-ui/core/Link";
+// import LineChart from "../components/LineChart";
+// import Link from "@material-ui/core/Link";
 import MenuIcon from "@material-ui/icons/Menu";
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
-import NotificationsIcon from "@material-ui/icons/Notifications";
-import { mainListItems, secondaryListItems } from "../components/listItems";
-import Chart from "../components/Chart";
-import Deposits from "../components/Deposits";
-import Orders from "../components/Orders";
-import { Avatar } from "@material-ui/core";
+
+import { mainListItems } from "../components/listItems";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import Item from "./Item";
 import AddUser from "./AddUser";
 import Donee from "./Donee";
 import Donor from "./Donor";
-// import Donation from "./Donation";
-import DonationTest from "../components/DonationTest";
 import Donation from "./Donation";
+import DonationOut from "./DonationOut";
+import { Row, Col } from "react-bootstrap";
+import DashboardTable from "../components/DashboardTable";
+import UserDetial from "./UserDetial";
 
-function Copyright() {
-  return (
-    <Typography variant="body2" color="textSecondary" align="center">
-      {"Copyright © "}
-      <Link color="inherit" href="https://material-ui.com/">
-        vannak inventory management System
-      </Link>{" "}
-      {new Date().getFullYear()}
-      {"."}
-    </Typography>
-  );
-}
+// function Copyright() {
+//   return (
+//     <Typography variant="body2" color="textSecondary" align="center">
+//       {"Copyright © "}
+//       <Link color="inherit" href="https://material-ui.com/">
+//         vannak inventory management System​
+//       </Link>{" "}
+//       <h2>សាកល្បង</h2>
+//       {new Date().getFullYear()}
+//       {"."}
+//     </Typography>
+//   );
+// }
 
 const drawerWidth = 240;
-
 const useStyles = makeStyles((theme) => ({
   root: {
     display: "flex",
@@ -129,13 +126,62 @@ const useStyles = makeStyles((theme) => ({
 export default function Dashboard() {
   const classes = useStyles();
   const [open, setOpen] = React.useState(true);
+
   const handleDrawerOpen = () => {
     setOpen(true);
   };
+
+  const [itemList, setItemList] = useState([]);
+  const [total, setTotal] = useState([]);
+  const [totalDonor, setTotalDonor] = useState(0);
+  const [totalDonee, setTotalDonee] = useState(0);
+  const [totalItem, setTotalItem] = useState(0);
+
+  React.useEffect(() => {
+    const fetchData = async () => {
+      const data = await db
+        .collection("item")
+        .where("countInStock", "!=", 0)
+        .get();
+      setItemList(data.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
+    };
+    fetchData();
+  }, []);
+  React.useEffect(() => {
+    const fetchData = async () => {
+      const data = await db
+        .collection("conclusion")
+        .doc("QMfeme9U318gGqYGUNed")
+        .get();
+      setTotal(data.data().totalCash);
+    };
+    fetchData();
+  }, []);
+
+  React.useEffect(() => {
+    db.collection("user")
+      .where("donor", "!=", true)
+      .get()
+      .then(function (querySnapshot) {
+        setTotalDonee(querySnapshot.size);
+      });
+    db.collection("item")
+      .get()
+      .then(function (querySnapshot) {
+        setTotalItem(querySnapshot.size);
+      });
+    db.collection("user")
+      .where("donor", "==", true)
+      .get()
+      .then(function (querySnapshot) {
+        setTotalDonor(querySnapshot.size);
+      });
+  }, []);
+
   const handleDrawerClose = () => {
     setOpen(false);
   };
-  const fixedHeightPaper = clsx(classes.paper, classes.fixedHeight);
+  // const fixedHeightPaper = clsx(classes.paper, classes.fixedHeight);
 
   return (
     <div className={classes.root}>
@@ -164,13 +210,11 @@ export default function Dashboard() {
               color="inherit"
               noWrap
               className={classes.title}
-            >
-              Dashboard
-            </Typography>
+            ></Typography>
             <IconButton color="inherit">
               {/* <NotificationsIcon /> */}
-              <Avatar src="./images.png" />
-              {/* <Avatar src="https://uploads.tapatalk-cdn.com/20161229/a49dd3a9733d1829d5aeecf5e0c9bec7.jpg"/> */}
+              {/* <Image src={require("../assets/logo.jpg")} roundedCircle /> */}
+
               <Typography
                 component="h1"
                 variant="h6"
@@ -198,48 +242,89 @@ export default function Dashboard() {
           <Divider />
           <List>{mainListItems}</List>
           <Divider />
-          <List>{secondaryListItems}</List>
+          {/* <List>{secondaryListItems}</List> */}
         </Drawer>
         <main className={classes.content}>
           <Switch>
             <Route path="/" exact>
               <div className={classes.appBarSpacer} />
               <Container maxWidth="lg" className={classes.container}>
-                <Grid container spacing={1}>
-                  {/* Chart */}
-                  <Grid item xs={12} md={6} lg={8}>
-                    <Paper className={fixedHeightPaper}>
-                      <Chart />
-                    </Paper>
-                  </Grid>
-                  {/* Recent Deposits */}
-                  <Grid item xs={12} md={3} lg={2}>
-                    <Paper className={fixedHeightPaper}>
-                      <Deposits />
-                    </Paper>
-                  </Grid>
-                  <Grid item xs={12} md={3} lg={2}>
-                    <Paper className={fixedHeightPaper}>
-                      <Deposits />
-                    </Paper>
-                  </Grid>
-                  {/* Recent Orders */}
-                  <Grid item xs={12}>
-                    <Paper className={classes.paper}>
-                      <Orders />
-                    </Paper>
-                  </Grid>
-                </Grid>
-                <Box pt={4}>
-                  <Copyright />
-                </Box>
+                <Row>
+                  <Col xs={12} md={4} sm={12} lg={4} className="mt-2">
+                    <Box
+                      title="ចំនួនអ្នកបានឧបត្ថម"
+                      data={totalDonor}
+                      unit="នាក់"
+                      bg="warning"
+                    />
+                  </Col>
+                  <Col xs={12} md={4} sm={12} lg={4} className="mt-2">
+                    <Box
+                      title="ចំនួនអ្នកទទួលបានការឧបត្ថម"
+                      data={totalDonee}
+                      unit="នាក់"
+                      bg="info"
+                    />
+                  </Col>
+                  <Col xs={12} md={4} sm={12} lg={4} className="mt-2">
+                    <Box
+                      title="ចំនួនទំនិញ់សរុប"
+                      data={totalItem}
+                      unit="មុខ"
+                      bg="success"
+                    />
+                  </Col>
+                </Row>
+                <Row className="mt-2">
+                  <Col xs={12} md={8} sm={12} lg={8}>
+                    <div
+                      className="chart"
+                      style={{ height: "400px", with: "100%" }}
+                    >
+                      {/* <LineChart /> */}
+                    </div>
+                  </Col>
+                  <Col xs={12} md={4} sm={12} lg={4}>
+                    <Row>
+                      <Col xs={12} md={12} sm={12} lg={12}>
+                        <Box
+                          title="លុយមូលនិធិនៅសល់សរុប"
+                          data={total}
+                          unit="$"
+                          bg="primary"
+                        />
+                      </Col>
+                      <Col xs={12} md={12} sm={12} lg={12} className="my-2">
+                        <Box
+                          title="pending"
+                          data="000"
+                          unit="នាក់"
+                          bg="danger"
+                        />
+                      </Col>
+                      <Col xs={12} md={12} sm={12} lg={12} className="mt-2">
+                        <Box
+                          title="pending"
+                          data={totalItem}
+                          unit="មុខ"
+                          bg="success"
+                        />
+                      </Col>
+                    </Row>
+                  </Col>
+                </Row>
+                <div className="dashboardTable">
+                  <DashboardTable itemList={itemList} />
+                </div>
               </Container>
             </Route>
+            <Route path="/userdetail/:id" component={UserDetial} />
             <Route path="/item" component={Item} />
             <Route path="/users" component={AddUser} />
             <Route path="/donees" component={Donee} />
             <Route path="/donors" component={Donor} />
             <Route path="/donation" component={Donation} />
+            <Route path="/donate" component={DonationOut} />
           </Switch>
         </main>
       </Router>

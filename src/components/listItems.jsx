@@ -1,97 +1,62 @@
 import React from "react";
-import ListItem from "@material-ui/core/ListItem";
-import ListItemIcon from "@material-ui/core/ListItemIcon";
-import ListItemText from "@material-ui/core/ListItemText";
-import ListSubheader from "@material-ui/core/ListSubheader";
+
+import PeopleAltIcon from "@material-ui/icons/PeopleAlt";
 import DashboardIcon from "@material-ui/icons/Dashboard";
-import ShoppingCartIcon from "@material-ui/icons/ShoppingCart";
-import PeopleIcon from "@material-ui/icons/People";
-import BarChartIcon from "@material-ui/icons/BarChart";
+
+import PersonAddIcon from "@material-ui/icons/PersonAdd";
+
 import LayersIcon from "@material-ui/icons/Layers";
-import AssignmentIcon from "@material-ui/icons/Assignment";
+
+import DoubleArrowIcon from "@material-ui/icons/DoubleArrow";
+import KeyboardArrowLeftIcon from "@material-ui/icons/KeyboardArrowLeft";
 import { Link } from "react-router-dom";
-
+import "./ListItem.css";
+import { ListGroup } from "react-bootstrap";
 export const mainListItems = (
-  <div>
-    <Link to="/">
-      <ListItem button>
-        <ListItemIcon>
-          <DashboardIcon color="secondary" />
-        </ListItemIcon>
-        <ListItemText primary="Dashboard" />
-      </ListItem>
-    </Link>
-    <Link to="/donors">
-      <ListItem button>
-        <ListItemIcon>
-          <ShoppingCartIcon color="primary" />
-        </ListItemIcon>
-        <ListItemText primary="Donors" />
-      </ListItem>
-    </Link>
-    <Link to="/donees">
-      <ListItem button>
-        <ListItemIcon>
-          <ShoppingCartIcon />
-        </ListItemIcon>
-        <ListItemText primary="Donees" />
-      </ListItem>
-    </Link>
-    <Link to="/item">
-      <ListItem button>
-        <ListItemIcon>
-          <ShoppingCartIcon />
-        </ListItemIcon>
-        <ListItemText primary="Items" />
-      </ListItem>
-    </Link>
-    <Link to="/users">
-      <ListItem button>
-        <ListItemIcon>
-          <ShoppingCartIcon />
-        </ListItemIcon>
-        <ListItemText primary="Add Users" />
-      </ListItem>
-    </Link>
-    <Link to="/donation">
-      <ListItem button>
-        <ListItemIcon>
-          <ShoppingCartIcon />
-        </ListItemIcon>
-        <ListItemText primary="Donations" />
-      </ListItem>
-    </Link>
-    <Link to="/donate">
-      <ListItem button>
-        <ListItemIcon>
-          <ShoppingCartIcon />
-        </ListItemIcon>
-        <ListItemText primary="Donate" />
-      </ListItem>
-    </Link>
-  </div>
-);
-
-export const secondaryListItems = (
-  <div>
-    <ListSubheader inset>Saved reports</ListSubheader>
-    <ListItem button>
-      <ListItemIcon>
-        <AssignmentIcon />
-      </ListItemIcon>
-      <ListItemText primary="Current month" />
-    </ListItem>
-    <ListItem button>
-      <ListItemIcon>
-        <AssignmentIcon />
-      </ListItemIcon>
-      <ListItemText primary="Last quarter" />
-    </ListItem>
-    <ListItem button>
-      <ListItemIcon>
-        <AssignmentIcon />
-      </ListItemIcon>
-      <ListItemText primary="Year-end sale" />
-    </ListItem>
-  </div>
+  <>
+    <ListGroup variant="flush">
+      <ListGroup.Item className="sidebarList">
+        <a href="/">
+          <DashboardIcon color="primary" />
+          <span className="pl-3 ml-3">ទិន្នន័យរួម</span>
+        </a>
+      </ListGroup.Item>
+      <ListGroup.Item className="sidebarList">
+        <Link to="/item">
+          <LayersIcon color="secondary" />
+          <span className="pl-3 ml-3">បញ្ចូលអីវ៉ាន់</span>
+        </Link>
+      </ListGroup.Item>
+      <ListGroup.Item className="sidebarList">
+        <Link to="/users">
+          <PersonAddIcon color="light" />
+          <span className="pl-3 ml-3">អ្នកទទួលនិងឧបត្ថម</span>
+        </Link>
+      </ListGroup.Item>
+      <ListGroup.Item className="sidebarList">
+        <Link to="/donors">
+          <PeopleAltIcon color="light" />
+          <span className="pl-3 ml-3">តារាងឈ្មោះអ្នកឧបត្ថម</span>
+        </Link>
+      </ListGroup.Item>
+      <ListGroup.Item className="sidebarList">
+        <Link to="/donees">
+          <PeopleAltIcon color="info" />
+          <span className="pl-3 ml-3">អ្នកទទួលការឧបត្ថម</span>
+        </Link>
+      </ListGroup.Item>
+      <ListGroup.Item className="sidebarList">
+        <Link to="/donation">
+          <KeyboardArrowLeftIcon className="text-success" />
+          <span className="pl-3 ml-3">ការទទួលការឧបត្ថម</span>
+        </Link>
+      </ListGroup.Item>
+      <ListGroup.Item className="sidebarList">
+        <Link to="/donate">
+          <DoubleArrowIcon className="text-warning" />
+          <span className="pl-3 ml-3">អការទទួលការឧបត្ថម</span>
+        </Link>
+      </ListGroup.Item>
+    </ListGroup>
+  </>
 );

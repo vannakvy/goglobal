@@ -2,12 +2,14 @@ import React, { useState } from "react";
 import { Row, Button, Col, Modal, Form } from "react-bootstrap";
 import { FaPlus } from "react-icons/fa";
 import DonationTable from "../components/DonationTable";
+import ModalDonation from "../components/ModalDonation";
 import TaskList from "../components/TaskList";
 import db from "../config/db";
 import firebase from "firebase";
 // import ItemListField from "../components/TaskList";
-const Donation = () => {
+const DonationOut = () => {
   const [lgShow, setLgShow] = useState(false);
+  const [lgShow2, setLgShow2] = useState(false);
   const [userList, setUserList] = useState([]);
   const [itemList, setItemList] = useState([]);
   const [donationList, setDonationList] = useState([]);
@@ -35,7 +37,7 @@ const Donation = () => {
 
   React.useEffect(() => {
     const fetchData = async () => {
-      const data = await db.collection("donation_in").get();
+      const data = await db.collection("donation_out").get();
       setDonationList(data.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
     };
     fetchData();
@@ -64,32 +66,30 @@ const Donation = () => {
       ],
     });
   };
-
   const handleSubmit = (e) => {
     e.preventDefault();
     var batch = db.batch();
-
-    db.collection("donation_in")
+    db.collection("donation_out")
       .add({
         date: new Date(`${data.date}`).toISOString(),
         cash: data.cash,
         userId: data.userId,
         numberOfItem: data.taskList.length,
       })
-      .then((res) => {
+      .then((doc) => {
         db.collection("conclusion")
           .doc("QMfeme9U318gGqYGUNed")
           .update({
-            totalCash: firebase.firestore.FieldValue.increment(data.cash),
+            totaCash: firebase.firestore.FieldValue.increment(-data.cash),
           });
         data.taskList.forEach((d) => {
           db.collection("item")
             .doc(d.item)
             .update({
-              countInStock: firebase.firestore.FieldValue.increment(d.qty),
+              countInStock: firebase.firestore.FieldValue.increment(-d.qty),
             });
           var docRef = db.collection("donate_item").doc(); //automatically generate unique id
-          batch.set(docRef, { ...d, donationInId: res.id });
+          batch.set(docRef, { ...d, donationInId: doc.id });
         });
         batch.commit();
       });
@@ -117,7 +117,7 @@ const Donation = () => {
           <Col md={3}>
             <Button variant="info" onClick={() => setLgShow(true)}>
               <FaPlus />
-              <span className="pl-2">បញ្ចូលការឧបត្ថម</span>
+              <span className="pl-2">បញ្ចូលទិន្នន័យការឧបត្ថម</span>
             </Button>
           </Col>
         </Row>
@@ -133,7 +133,7 @@ const Donation = () => {
         >
           <Modal.Header closeButton>
             <Modal.Title id="example-modal-sizes-title-lg">
-              បញ្ចូលការឧបត្ថម
+              បញ្ចូលទិន្នន័យការឧបត្ថម
             </Modal.Title>
           </Modal.Header>
           <Modal.Body>
@@ -183,7 +183,7 @@ const Donation = () => {
                       className="mt-2"
                     >
                       <FaPlus />
-                      <span className="pl-2">Add Donation</span>
+                      <span className="pl-2">បញ្ចូលការឧបត្ថម</span>
                     </Button>
                   </Col>
                 ) : null}
@@ -196,7 +196,7 @@ const Donation = () => {
                     className="mt-2"
                   >
                     <FaPlus />
-                    <span className="pl-2">Submit</span>
+                    <span className="pl-2">បញ្ចូលទិន្នន័យ</span>
                   </Button>
                 </Col>
               </Form.Row>
@@ -204,10 +204,11 @@ const Donation = () => {
           </Modal.Body>
         </Modal>
       </div>
+      <ModalDonation lgShow={lgShow2} setLgShow={setLgShow2} />
 
       {/* Modal for Form Field */}
     </div>
   );
 };
 
-export default Donation;
+export default DonationOut;

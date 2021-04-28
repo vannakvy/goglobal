@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Form, FormGroup, Row, Col } from "react-bootstrap";
 import DoneeAndDonorTable from "../components/DoneeAndDonorTable";
+
 import db from "../config/db";
 
 const Donee = () => {
@@ -25,11 +26,9 @@ const Donee = () => {
       <div className="donee_search p-3">
         <Form>
           <FormGroup as={Row}>
+            <Form.Label>Search the Name</Form.Label>
             <Col md={3}>
               <Form.Control type="text" placeholder="Search by Name" />
-            </Col>
-            <Col md={3}>
-              <Form.Control type="date" placeholder="Search by Date" />
             </Col>
           </FormGroup>
         </Form>

@@ -1,9 +1,14 @@
 import React, { useState } from "react";
-import { Container, Form, FormGroup, Row, Col, Button } from "react-bootstrap";
+import { Container, Form, Col, Button, Modal } from "react-bootstrap";
 import Switch from "@material-ui/core/Switch";
-import UserTable from "../components/UserTable";
+import UserTable from "../components/addUser/UserTable";
 import db from "../config/db";
-import { computeHeadingLevel } from "@testing-library/dom";
+import { FaPlus } from "react-icons/fa";
+// import Pagination from "../components/Pagination";
+import { BsChevronDoubleRight } from "react-icons/bs";
+import { BsChevronDoubleLeft } from "react-icons/bs";
+import Pagination from "../components/Pagination";
+
 function AddUser() {
   const [userName, setUserName] = useState("");
   const [donor, setDonor] = useState(false);
@@ -13,7 +18,8 @@ function AddUser() {
   const [userList, setUserList] = useState([]);
   const [id, setId] = useState("");
   const [update, setUpdate] = useState(false);
-  //   console.log(userList);
+  const [lgShow, setLgShow] = useState(false);
+
   const handleSubmit = (e) => {
     e.preventDefault();
     if (update) {
@@ -38,6 +44,7 @@ function AddUser() {
     clearInput();
   };
   const onUpdate = (id) => {
+    setLgShow(true);
     const index = userList.findIndex((el) => el.id === id);
     const data = userList[index];
     setUserName(data.name);
@@ -57,103 +64,172 @@ function AddUser() {
   };
   React.useEffect(() => {
     const fetchData = async () => {
-      const data = await db.collection("user").get();
+      const data = await db
+        .collection("user")
+        .orderBy("name", "asc")
+        .limit(2)
+        .get();
       setUserList(data.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
     };
     fetchData();
-  }, [userName, onUpdate]);
+  }, [userName]);
+
+  // console.log(userList[0].name);
+
   const onDelete = (id) => {
     db.collection("user").doc(id).delete();
   };
 
+  const prevPage = (first) => {
+    const fetchData = async () => {
+      const data = await db
+        .collection("user")
+        .orderBy("name", "asc")
+        .endBefore(userList[0].name)
+        .limit(2)
+        .get();
+      setUserList(data.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
+    };
+    fetchData();
+  };
+  const nextPage = (last) => {
+    const fetchData = async () => {
+      const data = await db
+        .collection("user")
+        .orderBy("name", "asc")
+        .startAfter(userList[userList.length - 1].name)
+        .limit(2)
+        .get();
+      setUserList(data.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
+    };
+    fetchData();
+  };
+
   return (
     <div className="addUser">
-      <br />
-      <br />
-      <br />
+      <div style={{ marginTop: "75px" }}></div>
+      <div className="mt-3"></div>
+
       <Container>
-        <h2>Add Donees and Doner info</h2>
-        <div className="AddUser_form">
-          <Form onSubmit={handleSubmit}>
-            <FormGroup as={Row}>
-              <Form.Label md={1}>Username:</Form.Label>
-              <Col md={3}>
-                <Form.Control
-                  size="sm"
-                  value={userName}
-                  onChange={(e) => setUserName(e.target.value)}
-                  type="text"
-                  placeholder="username"
-                />
-              </Col>
-              <Form.Label md={1}>Address:</Form.Label>
-              <Col md={3}>
-                <Form.Control
-                  size="sm"
-                  value={address}
-                  onChange={(e) => setAddress(e.target.value)}
-                  type="text"
-                  placeholder="Address"
-                />
-              </Col>
-              <Form.Label md={1}>Donor:</Form.Label>
-              <Col md={3}>
-                <Switch
-                  onChange={() => setDonor(!donor)}
-                  checked={donor}
-                  inputProps={{ "aria-label": "primary checkbox" }}
-                />
-              </Col>
-            </FormGroup>
-            <FormGroup as={Row}>
-              <Form.Label md={1}>Tel:</Form.Label>
-              <Col md={3}>
-                <Form.Control
-                  size="sm"
-                  value={tel}
-                  onChange={(e) => setTel(e.target.value)}
-                  type="text"
-                  placeholder="Tel"
-                />
-              </Col>
-              <Form.Label md={1}>Company:</Form.Label>
-              <Col md={3}>
-                <Form.Control
-                  size="sm"
-                  value={company}
-                  onChange={(e) => setCompany(e.target.value)}
-                  type="text"
-                  placeholder="company"
-                />
-              </Col>
-              <Col md={3}>
-                <Button type="submit" variant={update ? "warning" : "info"}>
-                  {update ? "update" : "Add user"}
-                </Button>
-                {update ? (
-                  <Button
-                    className="ml-3"
-                    type="button"
-                    onClick={() => {
-                      clearInput();
-                      setUpdate(false);
-                    }}
-                    variant="warning"
-                  >
-                    cancel
-                  </Button>
-                ) : null}
-              </Col>
-            </FormGroup>
-          </Form>
-        </div>
+        <Button onClick={() => setLgShow(true)} color="info">
+          <FaPlus />
+          បញូលទិន្នន័យអ្នកឧបត្ថមនិងអ្នកទទួល
+        </Button>
+        <Modal
+          style={{ Zindex: "1000", marginTop: "50px", marginLeft: "30px" }}
+          size="md"
+          show={lgShow}
+          onHide={() => setLgShow(false)}
+          aria-labelledby="example-modal-sizes-title-lg"
+        >
+          <Modal.Header closeButton>
+            <Modal.Title id="example-modal-sizes-title-lg">
+              បញូលទិន្នន័យអ្នក ឧបត្ថមនិងអ្នកទទួល
+            </Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <div className="AddUser_form">
+              <Form onSubmit={handleSubmit}>
+                <Form.Row>
+                  {" "}
+                  <Col md={6} sm={12} xs={12} lg={6}>
+                    <Form.Control
+                      required
+                      size="sm"
+                      value={userName}
+                      onChange={(e) => setUserName(e.target.value)}
+                      type="text"
+                      placeholder="username"
+                    />
+                  </Col>
+                  <Col md={6} sm={12} xs={12} lg={6}>
+                    <Form.Control
+                      size="sm"
+                      value={address}
+                      onChange={(e) => setAddress(e.target.value)}
+                      type="text"
+                      placeholder="Address"
+                    />
+                  </Col>
+                </Form.Row>
+                <Form.Row className="mt-2">
+                  <Col md={6} sm={12} xs={12} lg={6}>
+                    <Form.Control
+                      size="sm"
+                      value={tel}
+                      onChange={(e) => setTel(e.target.value)}
+                      type="text"
+                      placeholder="Tel"
+                    />
+                  </Col>
+
+                  <Col md={6} sm={12} xs={12} lg={6}>
+                    <Form.Control
+                      size="sm"
+                      value={company}
+                      onChange={(e) => setCompany(e.target.value)}
+                      type="text"
+                      placeholder="company"
+                    />
+                  </Col>
+                </Form.Row>
+                <Form.Row className="mt-2">
+                  <Col md={6} sm={12} xs={12} lg={6}>
+                    <Switch
+                      onChange={() => setDonor(!donor)}
+                      checked={donor}
+                      inputProps={{ "aria-label": "primary checkbox" }}
+                    />
+                  </Col>
+                  <Col md={6} sm={12} xs={12} lg={6}>
+                    <Button type="submit" variant={update ? "success" : "info"}>
+                      {update ? "កែប្រែ" : "បញ្ចូលទិន្នន័យ"}
+                    </Button>
+                    {update ? (
+                      <Button
+                        className="ml-1"
+                        type="button"
+                        onClick={() => {
+                          clearInput();
+                          setUpdate(false);
+                        }}
+                        variant="warning"
+                      >
+                        លុបការកែរប្រែ
+                      </Button>
+                    ) : null}
+                  </Col>
+                </Form.Row>
+              </Form>
+            </div>
+          </Modal.Body>
+        </Modal>
       </Container>
       <div className="Item_talble">
         <UserTable
           userList={userList}
           onUpdate={onUpdate}
           onDelete={onDelete}
+          setLgShow={setLgShow}
         />
+
+        <div className="text-right mr-2">
+          <Button size="sm" variant="info" onClick={prevPage}>
+            <BsChevronDoubleLeft />
+          </Button>{" "}
+          <Button size="sm" variant="info" onClick={nextPage}>
+            <BsChevronDoubleRight />
+          </Button>
+        </div>
+        {/* field, pageSize, collection, first, last, setData */}
+        {/* <Pagination
+          field="name"
+          pageSize={2}
+          collection="user"
+          // first={userList[0].name}
+          // last={userList[userList.length - 1].name}
+          setData={setUserList}
+        /> */}
       </div>
     </div>
   );

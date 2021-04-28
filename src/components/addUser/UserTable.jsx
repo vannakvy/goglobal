@@ -5,27 +5,24 @@ function UserTable({ userList, onUpdate, onDelete }) {
   let order = 1;
   return (
     <div className="productTable mt-1">
-      {userList.length == 0 ? (
+      {userList.length === 0 ? (
         <Spinner animation="border" />
       ) : (
         <Table striped bordered hover responsive className="table-sm">
           <thead>
-            <th>NO</th>
-            <th>USER ID</th>
-            <th>DONOR</th>
-            <th>USER NAME</th>
-            <th>COMPANY</th>
-            <th>ADDRESS</th>
-            <th>TEL</th>
-            <th colSpan="2">ACTION</th>
+            <th>លេខរៀង</th>
+            <th>ឈ្មោះ</th>
+            <th>ឈ្មោះស្ថាប័ន</th>
+            <th>អាស័យដ្ធាន</th>
+            <th>ទូរស័ព្ធ</th>
+            <th colSpan="2">ផ្សេងៗ</th>
           </thead>
           <tbody>
             {userList &&
               userList.map((item) => (
                 <tr key={item.id}>
                   <td>{order++}</td>
-                  <td>{item.id}</td>
-                  <td>{item.donor ? "True" : "False"}</td>
+                  {/* <td>{item.donor ? "True" : "False"}</td> */}
                   <td>{item.name}</td>
                   <td>{item.company}</td>
                   <td>{item.address}</td>
