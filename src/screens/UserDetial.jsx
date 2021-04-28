@@ -56,21 +56,21 @@ const UserDetial = () => {
         </thead>
         <tbody>
           {donationList &&
-            donationList.map((item) => (
-              <tr key={item.id}>
+            donationList.map((donate) => (
+              <tr key={donate.id}>
                 <td>{order++}</td>
-                <td>{item.date}</td>
-                <td>{item.userId}</td>
-                <td>{item.cash}</td>
+                <td>{donate.date}</td>
+                <td>{donate.userId}</td>
+                <td>{donate.cash}</td>
 
-                <td>{item.numberOfItem}</td>
+                <td>{donate.numberOfItem}</td>
                 <td>
                   <span>
                     {" "}
                     <FaEllipsisH
                       className="text-primary"
                       size="20px"
-                      onClick={() => showItem(item.id)}
+                      onClick={() => showItem(donate.id)}
                     />
                   </span>
                 </td>

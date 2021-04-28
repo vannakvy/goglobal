@@ -82,16 +82,20 @@ const Donation = () => {
           .update({
             totalCash: firebase.firestore.FieldValue.increment(data.cash),
           });
+        // if(data.taskList.length ===0)
         data.taskList.forEach((d) => {
-          db.collection("item")
-            .doc(d.item)
-            .update({
-              countInStock: firebase.firestore.FieldValue.increment(d.qty),
-            });
-          var docRef = db.collection("donate_item").doc(); //automatically generate unique id
-          batch.set(docRef, { ...d, donationInId: res.id });
+          if (d.item) {
+            db.collection("item")
+              .doc(d.item)
+              .update({
+                countInStock: firebase.firestore.FieldValue.increment(d.qty),
+              });
+            var docRef = db.collection("donate_item").doc();
+            batch.set(docRef, { ...d, donationInId: res.id });
+            batch.commit();
+          }
+          //automatically generate unique id
         });
-        batch.commit();
       });
     setData({
       taskList: [{ index: Math.random(), item: "", qty: "", price: "" }],
@@ -140,10 +144,11 @@ const Donation = () => {
             <Form onSubmit={handleSubmit} onChange={handleChange}>
               <Form.Row>
                 <Col xs={12} sm={4} md={3} lg={3}>
-                  <Form.Control name="date" id="date" type="date" />
+                  <Form.Control name="date" required id="date" type="date" />
                 </Col>
                 <Col xs={12} sm={4} md={3} lg={3}>
                   <Form.Control
+                    required
                     type="number"
                     name="cash"
                     id="cash"
@@ -152,12 +157,16 @@ const Donation = () => {
                 </Col>
                 <Col xs={12} sm={4} md={6} lg={6}>
                   <Form.Control
+                    required
                     as="select"
                     custom
                     type="text"
                     name="userId"
                     id="userId"
                   >
+                    <option selected disabled>
+                      រើសអ្នកឧបត្ថម
+                    </option>
                     {userList &&
                       userList.map((user) => (
                         <option value={user.name}>{user.name}</option>

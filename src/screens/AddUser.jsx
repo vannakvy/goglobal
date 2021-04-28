@@ -1,13 +1,20 @@
 import React, { useState } from "react";
-import { Container, Form, Col, Button, Modal } from "react-bootstrap";
+import { Container, Form, Col, Button, Modal, Alert } from "react-bootstrap";
 import Switch from "@material-ui/core/Switch";
 import UserTable from "../components/addUser/UserTable";
 import db from "../config/db";
 import { FaPlus } from "react-icons/fa";
+
+// import { usePagination } from "use-pagination-firestore";
+// import {
+//   NavigateNext as NavgateNextIcon,
+//   NavigateBefore as NavigateBeforeIcon,
+// } from "@material-ui/icons";
+// import { IconButton } from "@material-ui/core";
 // import Pagination from "../components/Pagination";
 import { BsChevronDoubleRight } from "react-icons/bs";
 import { BsChevronDoubleLeft } from "react-icons/bs";
-import Pagination from "../components/Pagination";
+// import Pagination from "../components/Pagination";
 
 function AddUser() {
   const [userName, setUserName] = useState("");
@@ -22,6 +29,7 @@ function AddUser() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
     if (update) {
       db.collection("user").doc(id).update({
         name: userName,
@@ -144,6 +152,7 @@ function AddUser() {
                   </Col>
                   <Col md={6} sm={12} xs={12} lg={6}>
                     <Form.Control
+                      required
                       size="sm"
                       value={address}
                       onChange={(e) => setAddress(e.target.value)}
@@ -155,6 +164,7 @@ function AddUser() {
                 <Form.Row className="mt-2">
                   <Col md={6} sm={12} xs={12} lg={6}>
                     <Form.Control
+                      required
                       size="sm"
                       value={tel}
                       onChange={(e) => setTel(e.target.value)}

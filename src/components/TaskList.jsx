@@ -10,6 +10,7 @@ const TaskList = (props) => {
       <Form.Row className="mt-2">
         <Col xs={12} sm={4} md={5} lg={5}>
           <Form.Control
+            required
             as="select"
             name="item"
             id={item}
@@ -17,20 +18,24 @@ const TaskList = (props) => {
             custom
             size="sm"
           >
+            <option selected disabled>
+              រើសមុខទំនិញ់
+            </option>
             {props.itemList &&
               props.itemList.map((item) => (
-                <option value={item.id}>{item.item}</option>
+                <option value={item.item}>{item.item}</option>
               ))}
           </Form.Control>
         </Col>
         <Col xs={12} sm={4} md={3} lg={3}>
           <Form.Control
+            required
             size="sm"
             type="number"
             name="qty"
             data-id={idx}
             id={qty}
-            placeholder="Enter Qty"
+            placeholder="ចំនួន"
           />
         </Col>
         <Col xs={12} sm={4} md={3} lg={3}>
@@ -40,7 +45,7 @@ const TaskList = (props) => {
             name="price"
             id={price}
             data-id={idx}
-            placeholder="Enter Price"
+            placeholder="តម្លៃ"
           />
         </Col>
 

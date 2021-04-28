@@ -54,7 +54,7 @@ export const mainListItems = (
       <ListGroup.Item className="sidebarList">
         <Link to="/donate">
           <DoubleArrowIcon className="text-warning" />
-          <span className="pl-3 ml-3">អការទទួលការឧបត្ថម</span>
+          <span className="pl-3 ml-3">ការចែកការឧបត្ថម</span>
         </Link>
       </ListGroup.Item>
     </ListGroup>

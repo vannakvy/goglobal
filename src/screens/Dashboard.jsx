@@ -12,7 +12,7 @@ import Typography from "@material-ui/core/Typography";
 import Divider from "@material-ui/core/Divider";
 import IconButton from "@material-ui/core/IconButton";
 import Container from "@material-ui/core/Container";
-// import LineChart from "../components/LineChart";
+import LineChart from "../components/LineChart";
 // import Link from "@material-ui/core/Link";
 import MenuIcon from "@material-ui/icons/Menu";
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
@@ -109,8 +109,8 @@ const useStyles = makeStyles((theme) => ({
     overflow: "auto",
   },
   container: {
-    paddingTop: theme.spacing(4),
-    paddingBottom: theme.spacing(4),
+    paddingTop: theme.spacing(1),
+    paddingBottom: theme.spacing(1),
   },
   paper: {
     padding: theme.spacing(2),
@@ -147,6 +147,7 @@ export default function Dashboard() {
     };
     fetchData();
   }, []);
+
   React.useEffect(() => {
     const fetchData = async () => {
       const data = await db
@@ -156,9 +157,7 @@ export default function Dashboard() {
       setTotal(data.data().totalCash);
     };
     fetchData();
-  }, []);
 
-  React.useEffect(() => {
     db.collection("user")
       .where("donor", "!=", true)
       .get()
@@ -277,11 +276,8 @@ export default function Dashboard() {
                 </Row>
                 <Row className="mt-2">
                   <Col xs={12} md={8} sm={12} lg={8}>
-                    <div
-                      className="chart"
-                      style={{ height: "400px", with: "100%" }}
-                    >
-                      {/* <LineChart /> */}
+                    <div className="chart">
+                      <LineChart />
                     </div>
                   </Col>
                   <Col xs={12} md={4} sm={12} lg={4}>
@@ -300,14 +296,6 @@ export default function Dashboard() {
                           data="000"
                           unit="នាក់"
                           bg="danger"
-                        />
-                      </Col>
-                      <Col xs={12} md={12} sm={12} lg={12} className="mt-2">
-                        <Box
-                          title="pending"
-                          data={totalItem}
-                          unit="មុខ"
-                          bg="success"
                         />
                       </Col>
                     </Row>

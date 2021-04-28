@@ -74,6 +74,7 @@ const Item = () => {
               <Form.Row>
                 <Col lg={6} md={6} sm={12} xs={12}>
                   <Form.Control
+                    required
                     type="text"
                     value={item}
                     size="sm"
@@ -84,6 +85,7 @@ const Item = () => {
 
                 <Col lg={6} md={6} sm={12} xs={12}>
                   <Form.Control
+                    required
                     type="text"
                     size="sm"
                     placeholder="Enter Unit"
@@ -95,6 +97,7 @@ const Item = () => {
               <Form.Row className="mt-2">
                 <Col lg={6} md={6} sm={12} xs={12}>
                   <Form.Control
+                    required
                     type="text"
                     size="sm"
                     value={description}
