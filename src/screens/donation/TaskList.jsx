@@ -23,7 +23,7 @@ const TaskList = (props) => {
             </option>
             {props.itemList &&
               props.itemList.map((item) => (
-                <option value={item.item}>{item.item}</option>
+                <option value={item.id}>{item.item}</option>
               ))}
           </Form.Control>
         </Col>

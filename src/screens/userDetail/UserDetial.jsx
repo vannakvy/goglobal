@@ -1,43 +1,30 @@
 import React from "react";
 import { Table, Modal } from "react-bootstrap";
 import { useParams, useLocation } from "react-router-dom";
-import db from "../config/db";
+import db from "../../config/db";
 import { FaEllipsisH } from "react-icons/fa";
+import { getDoneeAndDonorDetail } from "../../action/doneeAndDonor";
+import { useSelector, useDispatch } from "react-redux";
+import moment from "moment";
 
 const UserDetial = () => {
   const { id } = useParams();
-  const { search } = useLocation();
-  const a = search.split("=")[1].substring(1);
+  const dispatch = useDispatch();
 
-  const [donationList, setDonationList] = React.useState([]);
-  const [itemList, setItemList] = React.useState([]);
+  const itemList = [];
+
   const [donationId, setDonationId] = React.useState("");
   const [modal, setModal] = React.useState(false);
   let order = 1;
-  console.log(itemList);
-  const collection = a === "donors" ? "donation_in" : "donation_out";
+
+  const doneeAndDonorDetail = useSelector((state) => state.doneeAndDonorDetail);
+  const { loading, doneeAndDonorDetailList } = doneeAndDonorDetail;
 
   React.useEffect(() => {
-    const fetchData = async () => {
-      const data = await db
-        .collection(collection)
-        .where("userId", "==", id)
-        .get();
-      setDonationList(data.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
-    };
-    fetchData();
-  });
+    dispatch(getDoneeAndDonorDetail(id));
+  }, [id]);
 
-  React.useEffect(() => {
-    const fetchData = async () => {
-      const data = await db
-        .collection("donate_item")
-        .where("donationInId", "==", donationId)
-        .get();
-      setItemList(data.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
-    };
-    fetchData();
-  }, [donationId]);
+  console.log(doneeAndDonorDetail);
 
   const showItem = (item_id) => {
     setModal(true);
@@ -55,14 +42,13 @@ const UserDetial = () => {
           <th>ផ្សេងៗ</th>
         </thead>
         <tbody>
-          {donationList &&
-            donationList.map((donate) => (
+          {doneeAndDonorDetailList &&
+            doneeAndDonorDetailList.map((donate) => (
               <tr key={donate.id}>
                 <td>{order++}</td>
-                <td>{donate.date}</td>
+                <td>{moment(donate.date).format("YYYY-MM-DD HH:mm:ss")}</td>
                 <td>{donate.userId}</td>
                 <td>{donate.cash}</td>
-
                 <td>{donate.numberOfItem}</td>
                 <td>
                   <span>

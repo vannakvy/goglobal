@@ -9,10 +9,12 @@ function DashboardTable({ itemList }) {
       ) : (
         <Table striped bordered hover responsive className="table-sm">
           <thead>
-            <th>លេខរៀង</th>
-            <th>មុខទំនិញ់</th>
-            <th>ចំនួន</th>
-            <th colSpan="2">ផ្សេងៗ</th>
+            <tr>
+              <th>លេខរៀង</th>
+              <th>មុខទំនិញ់</th>
+              <th>ចំនួន</th>
+              <th colSpan="2">ផ្សេងៗ</th>
+            </tr>
           </thead>
           <tbody>
             {itemList &&

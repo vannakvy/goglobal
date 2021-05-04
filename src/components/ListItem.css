@@ -1,6 +1,4 @@
-.sidebarList {
-  /* background-color: aquamarine; */
-}
+
 .sidebarList:hover {
   margin-bottom: 2px;
   transition: 0.5s;

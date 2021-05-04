@@ -4,13 +4,12 @@ import PeopleAltIcon from "@material-ui/icons/PeopleAlt";
 import DashboardIcon from "@material-ui/icons/Dashboard";
 
 import PersonAddIcon from "@material-ui/icons/PersonAdd";
-
 import LayersIcon from "@material-ui/icons/Layers";
-
 import DoubleArrowIcon from "@material-ui/icons/DoubleArrow";
 import KeyboardArrowLeftIcon from "@material-ui/icons/KeyboardArrowLeft";
 import { Link } from "react-router-dom";
 import "./ListItem.css";
+
 import { ListGroup } from "react-bootstrap";
 export const mainListItems = (
   <>
@@ -33,18 +32,7 @@ export const mainListItems = (
           <span className="pl-3 ml-3">អ្នកទទួលនិងឧបត្ថម</span>
         </Link>
       </ListGroup.Item>
-      <ListGroup.Item className="sidebarList">
-        <Link to="/donors">
-          <PeopleAltIcon color="light" />
-          <span className="pl-3 ml-3">តារាងឈ្មោះអ្នកឧបត្ថម</span>
-        </Link>
-      </ListGroup.Item>
-      <ListGroup.Item className="sidebarList">
-        <Link to="/donees">
-          <PeopleAltIcon color="info" />
-          <span className="pl-3 ml-3">អ្នកទទួលការឧបត្ថម</span>
-        </Link>
-      </ListGroup.Item>
+
       <ListGroup.Item className="sidebarList">
         <Link to="/donation">
           <KeyboardArrowLeftIcon className="text-success" />

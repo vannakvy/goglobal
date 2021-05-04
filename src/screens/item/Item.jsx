@@ -1,55 +1,66 @@
 import React, { useState } from "react";
 import { Container, Form, Col, Button, Modal } from "react-bootstrap";
-import ItemTable from "../components/ItemTable";
-import db from "../config/db";
+import ItemTable from "./ItemTable";
+import db from "../../config/db";
+import { useDispatch, useSelector } from "react-redux";
+
+import {
+  addItem,
+  getItem,
+  updateItem,
+  deleteItem,
+} from "../../action/itemAction";
+
 const Item = () => {
   const [item, setItem] = useState("");
   const [description, setDescription] = useState("");
   const [unit, setUnit] = useState("");
-  const [itemList, setItemList] = useState([]);
   const [update, setUpdate] = useState(false);
-  const [id, setId] = useState("");
+  const [updateId, setUpdateId] = useState("");
   const [lgShow, setLgShow] = useState(false);
+  const dispatch = useDispatch();
+
+  const itemCreate = useSelector((state) => state.itemCreate);
+  const { error: createError } = itemCreate;
+  const itemUpdate = useSelector((state) => state.itemUpdate);
+  const { error: updateError } = itemUpdate;
+  const itemDelete = useSelector((state) => state.itemDelete);
+  const { error: deleteError } = itemDelete;
+  const { loading, error, itemList } = useSelector((state) => state.itemList);
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    dispatch(addItem(item, description, unit));
     if (update) {
-      db.collection("item").doc(id).update({
-        item: item,
-        description: description,
-        unit: unit,
-      });
-    } else {
-      db.collection("item").add({
-        item: item,
-        description: description,
-        unit: unit,
-        countInStock: 0,
-      });
+      dispatch(updateItem(item, description, unit, updateId));
+      setUpdate(false);
     }
+    clearInput();
+    setLgShow(false);
+  };
+  const clearInput = () => {
     setItem("");
     setUnit("");
     setDescription("");
   };
   const onDelete = (id) => {
-    db.collection("item").doc(id).delete();
+    dispatch(deleteItem(id));
   };
-  React.useEffect(() => {
-    const fetchData = async () => {
-      const data = await db.collection("item").get();
-      setItemList(data.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
-    };
-    fetchData();
-  }, [item]);
-  const edit = (e) => {
+
+  const onUpdate = (e) => {
     setLgShow(true);
     const index = itemList.findIndex((el) => el.id === e);
-    setItem(itemList[index].item);
-    setDescription(itemList[index].description);
-    setUnit(itemList[index].unit);
-    setId(itemList[index].id);
+    const data = itemList[index];
+    setItem(data.item);
+    setDescription(data.description);
+    setUnit(data.unit);
     setUpdate(true);
+    setUpdateId(data.id);
   };
+  React.useEffect(() => {
+    dispatch(getItem());
+  }, [itemCreate, itemDelete, itemUpdate]);
+
   return (
     <div className="p-2">
       <div className="" style={{ marginTop: "40px" }}></div>
@@ -137,7 +148,11 @@ const Item = () => {
         </Modal>
       </Container>
       <div className="item_table">
-        <ItemTable itemLists={itemList} edit={edit} onDelete={onDelete} />
+        <ItemTable
+          itemLists={itemList}
+          onUpdate={onUpdate}
+          onDelete={onDelete}
+        />
       </div>
     </div>
   );

@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { Row, Button, Col, Modal, Form } from "react-bootstrap";
 import { FaPlus } from "react-icons/fa";
-import DonationTable from "../components/DonationTable";
+// import DonationTable from "../components/DonationTable";
 import ModalDonation from "../components/ModalDonation";
-import TaskList from "../components/TaskList";
+// import TaskList from "../components/TaskList";
 import db from "../config/db";
 import firebase from "firebase";
 // import ItemListField from "../components/TaskList";
@@ -122,7 +122,7 @@ const DonationOut = () => {
           </Col>
         </Row>
         <div className="donation_table">
-          <DonationTable donationList={donationList} />
+          {/* <DonationTable donationList={donationList} /> */}
         </div>
         <Modal
           style={{ Zindex: "1000", marginTop: "50px", marginLeft: "30px" }}
@@ -167,12 +167,12 @@ const DonationOut = () => {
               </Form.Row>
               <div className="mt-2"></div>
 
-              <TaskList
+              {/* <TaskList
                 add={addNewRow}
                 delete={clickOnDelete}
                 taskList={data.taskList}
                 itemList={itemList}
-              />
+              /> */}
               <Form.Row>
                 {!lgShow ? (
                   <Col md={4}>

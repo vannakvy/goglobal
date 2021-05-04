@@ -1,20 +1,19 @@
 import React, { useState } from "react";
-import { Container, Form, Col, Button, Modal, Alert } from "react-bootstrap";
+import { Container, Form, Col, Button, Modal, Row } from "react-bootstrap";
 import Switch from "@material-ui/core/Switch";
-import UserTable from "../components/addUser/UserTable";
-import db from "../config/db";
+import UserTable from "./UserTable";
+import FormControlLabel from "@material-ui/core/FormControlLabel";
+import Checkbox from "@material-ui/core/Checkbox";
 import { FaPlus } from "react-icons/fa";
-
-// import { usePagination } from "use-pagination-firestore";
-// import {
-//   NavigateNext as NavgateNextIcon,
-//   NavigateBefore as NavigateBeforeIcon,
-// } from "@material-ui/icons";
-// import { IconButton } from "@material-ui/core";
-// import Pagination from "../components/Pagination";
-import { BsChevronDoubleRight } from "react-icons/bs";
-import { BsChevronDoubleLeft } from "react-icons/bs";
-// import Pagination from "../components/Pagination";
+import {
+  addDoneeAndDonor,
+  getDoneeAndDonors,
+  updateDoneeAndDonor,
+  deleteDoneeAndDonor,
+} from "../../action/doneeAndDonor";
+import { useSelector, useDispatch } from "react-redux";
+import Message from "../../components/Message";
+import Loader from "../../components/Loader";
 
 function AddUser() {
   const [userName, setUserName] = useState("");
@@ -22,46 +21,47 @@ function AddUser() {
   const [address, setAddress] = useState("");
   const [tel, setTel] = useState("");
   const [company, setCompany] = useState("");
-  const [userList, setUserList] = useState([]);
-  const [id, setId] = useState("");
   const [update, setUpdate] = useState(false);
   const [lgShow, setLgShow] = useState(false);
+  const [updateId, setUpdateId] = useState("");
+  const [query, setQuery] = useState({
+    donor: true,
+    donee: true,
+  });
+  const dispatch = useDispatch();
+
+  const doneeAndDonorCreate = useSelector((state) => state.doneeAndDonorCreate);
+  const { error: createError } = doneeAndDonorCreate;
+  const doneeAndDonorUpdate = useSelector((state) => state.doneeAndDonorUpdate);
+  const { error: updateError } = doneeAndDonorUpdate;
+  const doneeAndDonorDelete = useSelector((state) => state.doneeAndDonorDelete);
+  const { error: deleteError } = doneeAndDonorDelete;
+  const { loading, error, doneeAndDonorList } = useSelector(
+    (state) => state.doneeAndDonorList
+  );
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
     if (update) {
-      db.collection("user").doc(id).update({
-        name: userName,
-        donor: donor,
-        address: address,
-        tel: tel,
-        company: company,
-      });
-      setUpdate(false);
-    } else {
-      db.collection("user").add({
-        name: userName,
-        donor: donor,
-        address: address,
-        tel: tel,
-        company: company,
-      });
+      dispatch(
+        updateDoneeAndDonor(userName, donor, address, tel, company, updateId)
+      );
     }
-
+    dispatch(addDoneeAndDonor(userName, donor, address, tel, company));
     clearInput();
+    setLgShow(false);
   };
   const onUpdate = (id) => {
     setLgShow(true);
-    const index = userList.findIndex((el) => el.id === id);
-    const data = userList[index];
-    setUserName(data.name);
+    const index = doneeAndDonorList.findIndex((el) => el.id === id);
+    const data = doneeAndDonorList[index];
+    setUserName(data.userName);
     setDonor(data.donor);
     setAddress(data.address);
     setTel(data.tel);
     setCompany(data.company);
-    setId(data.id);
     setUpdate(true);
+    setUpdateId(data.id);
   };
   const clearInput = () => {
     setDonor("");
@@ -70,59 +70,51 @@ function AddUser() {
     setTel("");
     setCompany("");
   };
-  React.useEffect(() => {
-    const fetchData = async () => {
-      const data = await db
-        .collection("user")
-        .orderBy("name", "asc")
-        .limit(2)
-        .get();
-      setUserList(data.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
-    };
-    fetchData();
-  }, [userName]);
 
-  // console.log(userList[0].name);
+  React.useEffect(() => {
+    dispatch(getDoneeAndDonors(query));
+  }, [doneeAndDonorCreate, doneeAndDonorUpdate, doneeAndDonorDelete, query]);
 
   const onDelete = (id) => {
-    db.collection("user").doc(id).delete();
+    dispatch(deleteDoneeAndDonor(id));
   };
-
-  const prevPage = (first) => {
-    const fetchData = async () => {
-      const data = await db
-        .collection("user")
-        .orderBy("name", "asc")
-        .endBefore(userList[0].name)
-        .limit(2)
-        .get();
-      setUserList(data.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
-    };
-    fetchData();
-  };
-  const nextPage = (last) => {
-    const fetchData = async () => {
-      const data = await db
-        .collection("user")
-        .orderBy("name", "asc")
-        .startAfter(userList[userList.length - 1].name)
-        .limit(2)
-        .get();
-      setUserList(data.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
-    };
-    fetchData();
-  };
-
   return (
     <div className="addUser">
       <div style={{ marginTop: "75px" }}></div>
       <div className="mt-3"></div>
+      {createError && <Message variant="danger">{createError}</Message>}
+      {deleteError && <Message variant="danger">{deleteError}</Message>}
+      {updateError && <Message variant="danger">{updateError}</Message>}
+      {error && <Message variant="danger">{error}</Message>}
+      {loading && <Loader wd={40} hg={40} />}
 
       <Container>
         <Button onClick={() => setLgShow(true)} color="info">
           <FaPlus />
           បញូលទិន្នន័យអ្នកឧបត្ថមនិងអ្នកទទួល
         </Button>
+        <div className="query p-2">
+          <FormControlLabel
+            control={
+              <Checkbox
+                name="c"
+                onChange={() => setQuery({ ...query, donee: !query.donee })}
+              />
+            }
+            label="តែអ្នកទទួលការឧបត្ថម"
+            checked={query.donee}
+          />
+          <FormControlLabel
+            control={
+              <Checkbox
+                name="c"
+                onChange={() => setQuery({ ...query, donor: !query.donor })}
+              />
+            }
+            label="តែអ្នកផ្តល់ឧបត្ថម"
+            checked={query.donor}
+          />
+        </div>
         <Modal
           style={{ Zindex: "1000", marginTop: "50px", marginLeft: "30px" }}
           size="md"
@@ -217,29 +209,11 @@ function AddUser() {
       </Container>
       <div className="Item_talble">
         <UserTable
-          userList={userList}
+          userList={doneeAndDonorList}
           onUpdate={onUpdate}
           onDelete={onDelete}
           setLgShow={setLgShow}
         />
-
-        <div className="text-right mr-2">
-          <Button size="sm" variant="info" onClick={prevPage}>
-            <BsChevronDoubleLeft />
-          </Button>{" "}
-          <Button size="sm" variant="info" onClick={nextPage}>
-            <BsChevronDoubleRight />
-          </Button>
-        </div>
-        {/* field, pageSize, collection, first, last, setData */}
-        {/* <Pagination
-          field="name"
-          pageSize={2}
-          collection="user"
-          // first={userList[0].name}
-          // last={userList[userList.length - 1].name}
-          setData={setUserList}
-        /> */}
       </div>
     </div>
   );

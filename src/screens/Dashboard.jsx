@@ -13,35 +13,33 @@ import Divider from "@material-ui/core/Divider";
 import IconButton from "@material-ui/core/IconButton";
 import Container from "@material-ui/core/Container";
 import LineChart from "../components/LineChart";
-// import Link from "@material-ui/core/Link";
 import MenuIcon from "@material-ui/icons/Menu";
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
-
+import ExitToAppIcon from "@material-ui/icons/ExitToApp";
+import { useHistory } from "react-router-dom";
 import { mainListItems } from "../components/listItems";
-import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
-import Item from "./Item";
-import AddUser from "./AddUser";
+import SettingsIcon from "@material-ui/icons/Settings";
+import SignUp from "./Signup/SignUp";
+import {
+  BrowserRouter as Router,
+  Route,
+  Switch,
+  Redirect,
+  Link,
+} from "react-router-dom";
+import Item from "./item/Item";
+import AddUser from "./doneeAndDonor/AddUser";
 import Donee from "./Donee";
 import Donor from "./Donor";
-import Donation from "./Donation";
+import Donation from "../screens/donation/Donation";
 import DonationOut from "./DonationOut";
-import { Row, Col } from "react-bootstrap";
+import { Row, Col, ListGroup } from "react-bootstrap";
 import DashboardTable from "../components/DashboardTable";
-import UserDetial from "./UserDetial";
+import UserDetial from "../screens/userDetail/UserDetial";
+import { useDispatch, useSelector } from "react-redux";
+import { signout } from "../action/authAction";
 
-// function Copyright() {
-//   return (
-//     <Typography variant="body2" color="textSecondary" align="center">
-//       {"Copyright © "}
-//       <Link color="inherit" href="https://material-ui.com/">
-//         vannak inventory management System​
-//       </Link>{" "}
-//       <h2>សាកល្បង</h2>
-//       {new Date().getFullYear()}
-//       {"."}
-//     </Typography>
-//   );
-// }
+import ContactMailIcon from "@material-ui/icons/ContactMail";
 
 const drawerWidth = 240;
 const useStyles = makeStyles((theme) => ({
@@ -126,6 +124,7 @@ const useStyles = makeStyles((theme) => ({
 export default function Dashboard() {
   const classes = useStyles();
   const [open, setOpen] = React.useState(true);
+  const dispatch = useDispatch();
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -136,6 +135,10 @@ export default function Dashboard() {
   const [totalDonor, setTotalDonor] = useState(0);
   const [totalDonee, setTotalDonee] = useState(0);
   const [totalItem, setTotalItem] = useState(0);
+  const [OutOfStockItem, setOutOfStockItem] = useState(0);
+  const history = useHistory();
+
+  const { userInfo } = useSelector((state) => state.userInfo);
 
   React.useEffect(() => {
     const fetchData = async () => {
@@ -169,13 +172,26 @@ export default function Dashboard() {
       .then(function (querySnapshot) {
         setTotalItem(querySnapshot.size);
       });
+
     db.collection("user")
       .where("donor", "==", true)
       .get()
       .then(function (querySnapshot) {
         setTotalDonor(querySnapshot.size);
       });
+    db.collection("item")
+      .where("countInStock", "==", 0)
+      .get()
+      .then(function (querySnapshot) {
+        setOutOfStockItem(querySnapshot.size);
+      });
   }, []);
+
+  React.useEffect(() => {
+    if (userInfo === null) {
+      history.push("/login");
+    }
+  }, [history, userInfo]);
 
   const handleDrawerClose = () => {
     setOpen(false);
@@ -184,138 +200,169 @@ export default function Dashboard() {
 
   return (
     <div className={classes.root}>
-      <Router>
-        <CssBaseline />
-        <AppBar
-          position="absolute"
-          className={clsx(classes.appBar, open && classes.appBarShift)}
-        >
-          <Toolbar className={classes.toolbar}>
-            <IconButton
-              edge="start"
-              color="inherit"
-              aria-label="open drawer"
-              onClick={handleDrawerOpen}
-              className={clsx(
-                classes.menuButton,
-                open && classes.menuButtonHidden
-              )}
-            >
-              <MenuIcon />
-            </IconButton>
+      <CssBaseline />
+      <AppBar
+        position="absolute"
+        className={clsx(classes.appBar, open && classes.appBarShift)}
+      >
+        <Toolbar className={classes.toolbar}>
+          <IconButton
+            edge="start"
+            color="inherit"
+            aria-label="open drawer"
+            onClick={handleDrawerOpen}
+            className={clsx(
+              classes.menuButton,
+              open && classes.menuButtonHidden
+            )}
+          >
+            <MenuIcon />
+          </IconButton>
+          <Typography
+            component="h1"
+            variant="h6"
+            color="inherit"
+            noWrap
+            className={classes.title}
+          ></Typography>
+          <IconButton color="inherit">
             <Typography
               component="h1"
               variant="h6"
               color="inherit"
               noWrap
               className={classes.title}
-            ></Typography>
-            <IconButton color="inherit">
-              {/* <NotificationsIcon /> */}
-              {/* <Image src={require("../assets/logo.jpg")} roundedCircle /> */}
-
-              <Typography
-                component="h1"
-                variant="h6"
-                color="inherit"
-                noWrap
-                className={classes.title}
-              >
-                GO GLOBAL SCHOOL
-              </Typography>
-            </IconButton>
-          </Toolbar>
-        </AppBar>
-        <Drawer
-          variant="permanent"
-          classes={{
-            paper: clsx(classes.drawerPaper, !open && classes.drawerPaperClose),
-          }}
-          open={open}
-        >
-          <div className={classes.toolbarIcon}>
-            <IconButton onClick={handleDrawerClose}>
-              <ChevronLeftIcon />
-            </IconButton>
-          </div>
-          <Divider />
-          <List>{mainListItems}</List>
-          <Divider />
-          {/* <List>{secondaryListItems}</List> */}
-        </Drawer>
-        <main className={classes.content}>
-          <Switch>
-            <Route path="/" exact>
-              <div className={classes.appBarSpacer} />
-              <Container maxWidth="lg" className={classes.container}>
-                <Row>
-                  <Col xs={12} md={4} sm={12} lg={4} className="mt-2">
-                    <Box
-                      title="ចំនួនអ្នកបានឧបត្ថម"
-                      data={totalDonor}
-                      unit="នាក់"
-                      bg="warning"
+            >
+              GO GLOBAL SCHOOL
+            </Typography>
+          </IconButton>
+          <IconButton color="secondary">
+            <ExitToAppIcon
+              color="secondary"
+              onClick={() => dispatch(signout())}
+            />
+          </IconButton>
+        </Toolbar>
+      </AppBar>
+      <Drawer
+        variant="permanent"
+        classes={{
+          paper: clsx(classes.drawerPaper, !open && classes.drawerPaperClose),
+        }}
+        open={open}
+      >
+        <div className={classes.toolbarIcon}>
+          <IconButton onClick={handleDrawerClose}>
+            <ChevronLeftIcon />
+          </IconButton>
+        </div>
+        <Divider />
+        <List>{mainListItems}</List>
+        <Divider />
+        {/* <List>{secondaryListItems}</List> */}
+        <br />
+        <List>
+          <ListGroup variant="flush">
+            <ListGroup.Item className="sidebarList">
+              <Link to="/setting">
+                <SettingsIcon className="text-primary" />
+                <span className="pl-3 ml-3">កែប្រែ</span>
+              </Link>
+            </ListGroup.Item>
+            <ListGroup.Item className="sidebarList">
+              <Link to="/signup">
+                <ContactMailIcon className="text-danger" />
+                <span className="pl-3 ml-3">បង្កើតគណនី</span>
+              </Link>
+            </ListGroup.Item>
+            <ListGroup.Item className="sidebarList">
+              <Link to="/signout">
+                <ExitToAppIcon className="text-danger" />
+                <span className="pl-3 ml-3">ចាកចេញ់</span>
+              </Link>
+            </ListGroup.Item>
+          </ListGroup>
+        </List>
+      </Drawer>
+      <main className={classes.content}>
+        <Switch>
+          <Route path="/" exact>
+            <div className={classes.appBarSpacer} />
+            <Container maxWidth="lg" className={classes.container}>
+              <Row>
+                <Col xs={12} md={4} sm={12} lg={4} className="mt-2">
+                  <Box
+                    title="ចំនួនអ្នកបានឧបត្ថម"
+                    data={totalDonor}
+                    unit="នាក់"
+                    bg="warning"
+                  />
+                </Col>
+                <Col xs={12} md={4} sm={12} lg={4} className="mt-2">
+                  <Box
+                    title="ចំនួនអ្នកទទួលបានការឧបត្ថម"
+                    data={totalDonee}
+                    unit="នាក់"
+                    bg="info"
+                  />
+                </Col>
+                <Col xs={12} md={4} sm={12} lg={4} className="mt-2">
+                  <Box
+                    title="ចំនួនទំនិញ់សរុប"
+                    data={totalItem}
+                    unit="មុខ"
+                    bg="success"
+                  />
+                </Col>
+              </Row>
+              <Row className="mt-2">
+                <Col xs={12} md={8} sm={12} lg={8}>
+                  <div className="chart">
+                    <LineChart
+                      outOfStock={OutOfStockItem}
+                      totalDonor={totalDonor}
+                      total={total}
+                      totalDonee={totalDonee}
+                      totalItem={totalItem}
                     />
-                  </Col>
-                  <Col xs={12} md={4} sm={12} lg={4} className="mt-2">
-                    <Box
-                      title="ចំនួនអ្នកទទួលបានការឧបត្ថម"
-                      data={totalDonee}
-                      unit="នាក់"
-                      bg="info"
-                    />
-                  </Col>
-                  <Col xs={12} md={4} sm={12} lg={4} className="mt-2">
-                    <Box
-                      title="ចំនួនទំនិញ់សរុប"
-                      data={totalItem}
-                      unit="មុខ"
-                      bg="success"
-                    />
-                  </Col>
-                </Row>
-                <Row className="mt-2">
-                  <Col xs={12} md={8} sm={12} lg={8}>
-                    <div className="chart">
-                      <LineChart />
-                    </div>
-                  </Col>
-                  <Col xs={12} md={4} sm={12} lg={4}>
-                    <Row>
-                      <Col xs={12} md={12} sm={12} lg={12}>
-                        <Box
-                          title="លុយមូលនិធិនៅសល់សរុប"
-                          data={total}
-                          unit="$"
-                          bg="primary"
-                        />
-                      </Col>
-                      <Col xs={12} md={12} sm={12} lg={12} className="my-2">
-                        <Box
-                          title="pending"
-                          data="000"
-                          unit="នាក់"
-                          bg="danger"
-                        />
-                      </Col>
-                    </Row>
-                  </Col>
-                </Row>
-                <div className="dashboardTable">
-                  <DashboardTable itemList={itemList} />
-                </div>
-              </Container>
-            </Route>
-            <Route path="/userdetail/:id" component={UserDetial} />
-            <Route path="/item" component={Item} />
-            <Route path="/users" component={AddUser} />
-            <Route path="/donees" component={Donee} />
-            <Route path="/donors" component={Donor} />
-            <Route path="/donation" component={Donation} />
-            <Route path="/donate" component={DonationOut} />
-          </Switch>
-        </main>
-      </Router>
+                  </div>
+                </Col>
+                <Col xs={12} md={4} sm={12} lg={4}>
+                  <Row>
+                    <Col xs={12} md={12} sm={12} lg={12}>
+                      <Box
+                        title="លុយមូលនិធិនៅសល់សរុប"
+                        data={total}
+                        unit="$"
+                        bg="primary"
+                      />
+                    </Col>
+                    <Col xs={12} md={12} sm={12} lg={12} className="my-2">
+                      <Box
+                        title="ចំនួនទំនិញ់ដែលអស់"
+                        data={OutOfStockItem}
+                        unit="មុខ"
+                        bg="danger"
+                      />
+                    </Col>
+                  </Row>
+                </Col>
+              </Row>
+              <div className="dashboardTable">
+                <DashboardTable itemList={itemList} />
+              </div>
+            </Container>
+          </Route>
+          <Route path="/userdetail/:id" component={UserDetial} />
+          <Route path="/item" component={Item} />
+          <Route path="/users" component={AddUser} />
+          {/* <Route path="/donees" component={Donee} />
+          <Route path="/donors" component={Donor} /> */}
+          <Route path="/donation" component={Donation} />
+          <Route path="/donate" component={Donation} />
+          <Route path="/signup" component={SignUp} />
+        </Switch>
+      </main>
     </div>
   );
 }

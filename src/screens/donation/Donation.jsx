@@ -1,45 +1,57 @@
 import React, { useState } from "react";
 import { Row, Button, Col, Modal, Form } from "react-bootstrap";
 import { FaPlus } from "react-icons/fa";
-import DonationTable from "../components/DonationTable";
-import TaskList from "../components/TaskList";
-import db from "../config/db";
-import firebase from "firebase";
-// import ItemListField from "../components/TaskList";
+import DonationTable from "./DonationTable";
+import TaskList from "./TaskList";
+import { useDispatch, useSelector } from "react-redux";
+import { addDonation, getDonation } from "../../action/donationAction";
+import { getDoneeAndDonors } from "../../action/doneeAndDonor";
+import { getItem } from "../../action/itemAction";
+import { useHistory } from "react-router-dom";
+import Message from "../../components/Message";
+import Loader from "../../components/Loader";
+
 const Donation = () => {
+  const dispatch = useDispatch();
+  const { location } = useHistory();
+  const condition = location.pathname.substring(1);
   const [lgShow, setLgShow] = useState(false);
-  const [userList, setUserList] = useState([]);
-  const [itemList, setItemList] = useState([]);
-  const [donationList, setDonationList] = useState([]);
+
   const [data, setData] = useState({
     taskList: [{ index: Math.random(), item: "", qty: "", price: "" }],
     date: "",
     cash: 0,
     userId: "",
   });
-  //use Effect get data for user select input field
+  const { error: itemError, itemList } = useSelector((state) => state.itemList);
+  const { error: doneeAndDonorError, doneeAndDonorList } = useSelector(
+    (state) => state.doneeAndDonorList
+  );
+
+  const donationCreate = useSelector((state) => state.donationCreate);
+  const { error } = donationCreate;
+  const { donationList, loading } = useSelector((state) => state.donationList);
   React.useEffect(() => {
-    const fetchData = async () => {
-      const data = await db.collection("user").get();
-      setUserList(data.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
-    };
-    fetchData();
-  }, []);
-  React.useEffect(() => {
-    const fetchData = async () => {
-      const data = await db.collection("item").get();
-      setItemList(data.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
-    };
-    fetchData();
-  }, []);
+    let query;
+    if (condition === "donation") {
+      query = {
+        donor: true,
+        donee: false,
+      };
+    } else {
+      query = {
+        donor: false,
+        donee: true,
+      };
+    }
+
+    dispatch(getDoneeAndDonors(query));
+    dispatch(getDonation(condition));
+  }, [condition, donationCreate]);
 
   React.useEffect(() => {
-    const fetchData = async () => {
-      const data = await db.collection("donation_in").get();
-      setDonationList(data.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
-    };
-    fetchData();
-  }, [lgShow]);
+    dispatch(getItem());
+  }, []);
 
   const handleChange = (e) => {
     if (["item", "qty", "price"].includes(e.target.name)) {
@@ -67,36 +79,14 @@ const Donation = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    var batch = db.batch();
+    let con;
+    if (condition === "donation") {
+      con = true;
+    } else {
+      con = false;
+    }
+    dispatch(addDonation(data, con));
 
-    db.collection("donation_in")
-      .add({
-        date: new Date(`${data.date}`).toISOString(),
-        cash: data.cash,
-        userId: data.userId,
-        numberOfItem: data.taskList.length,
-      })
-      .then((res) => {
-        db.collection("conclusion")
-          .doc("QMfeme9U318gGqYGUNed")
-          .update({
-            totalCash: firebase.firestore.FieldValue.increment(data.cash),
-          });
-        // if(data.taskList.length ===0)
-        data.taskList.forEach((d) => {
-          if (d.item) {
-            db.collection("item")
-              .doc(d.item)
-              .update({
-                countInStock: firebase.firestore.FieldValue.increment(d.qty),
-              });
-            var docRef = db.collection("donate_item").doc();
-            batch.set(docRef, { ...d, donationInId: res.id });
-            batch.commit();
-          }
-          //automatically generate unique id
-        });
-      });
     setData({
       taskList: [{ index: Math.random(), item: "", qty: "", price: "" }],
       date: "",
@@ -116,12 +106,22 @@ const Donation = () => {
       <br />
       <br />
       <br />
+      {itemError && <Message variant="danger">{itemError}</Message>}
+      {doneeAndDonorError && (
+        <Message variant="danger">{doneeAndDonorError}</Message>
+      )}
+      {error && <Message variant="danger">{error}</Message>}
+      {loading && <Loader hg={30} wd={30} />}
       <div className="mt-2 p-1">
         <Row>
           <Col md={3}>
-            <Button variant="info" onClick={() => setLgShow(true)}>
+            <Button size="sm" variant="info" onClick={() => setLgShow(true)}>
               <FaPlus />
-              <span className="pl-2">បញ្ចូលការឧបត្ថម</span>
+              <span className="pl-2">
+                {condition === "donation"
+                  ? "បញ្ចូលការឧបត្ថម"
+                  : "បញ្ចូលការចែកឧបត្ថម"}
+              </span>
             </Button>
           </Col>
         </Row>
@@ -144,10 +144,17 @@ const Donation = () => {
             <Form onSubmit={handleSubmit} onChange={handleChange}>
               <Form.Row>
                 <Col xs={12} sm={4} md={3} lg={3}>
-                  <Form.Control name="date" required id="date" type="date" />
+                  <Form.Control
+                    size="sm"
+                    name="date"
+                    required
+                    id="date"
+                    type="date"
+                  />
                 </Col>
                 <Col xs={12} sm={4} md={3} lg={3}>
                   <Form.Control
+                    size="sm"
                     required
                     type="number"
                     name="cash"
@@ -157,6 +164,7 @@ const Donation = () => {
                 </Col>
                 <Col xs={12} sm={4} md={6} lg={6}>
                   <Form.Control
+                    size="sm"
                     required
                     as="select"
                     custom
@@ -167,9 +175,9 @@ const Donation = () => {
                     <option selected disabled>
                       រើសអ្នកឧបត្ថម
                     </option>
-                    {userList &&
-                      userList.map((user) => (
-                        <option value={user.name}>{user.name}</option>
+                    {doneeAndDonorList &&
+                      doneeAndDonorList.map((user) => (
+                        <option value={user.userName}>{user.userName}</option>
                       ))}
                   </Form.Control>
                 </Col>
